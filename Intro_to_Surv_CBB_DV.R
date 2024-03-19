@@ -7,8 +7,8 @@
 install.packages("survival")
 install.packages("survminer")
 
-library(survival)
-library(survminer)
+library("survival")
+library("survminer")
 
 # IMPORT OR LOAD DATA
 # One can use the drop-down menu or the R command
@@ -96,9 +96,9 @@ ggsurvplot(fit,
   
 # What about age? we can compare survival by different age groups..
   lung$agegrp <- NA
-  lung$agegrp[age < 55] <- "less than 55"
-  lung$agegrp[age >= 55 & age < 70] <- "55-69"
-  lung$agegrp[age >= 70] <- "70 and above"
+  lung$agegrp[lung$age < 55] <- "less than 55"
+  lung$agegrp[lung$age >= 55 & lung$age < 70] <- "55-69"
+  lung$agegrp[lung$age >= 70] <- "70 and above"
   
   fitAge <- survfit(Surv(time, status) ~ agegrp, data = lung)
   ggsurvplot(fitAge,
