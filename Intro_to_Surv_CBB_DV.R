@@ -1,6 +1,6 @@
 # Introduction to survival analysis workshop
 # practical session with R
-# CBB, 2024/01/19
+# CBB, 2024/03/19
 
 # BEFORE THE START: install packages survival and surminer
 # install.packages(c("survival", "survminer"))
@@ -100,11 +100,14 @@ ggsurvplot(fit,
   lung$agegrp[lung$age >= 55 & lung$age < 70] <- "55-69"
   lung$agegrp[lung$age >= 70] <- "70 and above"
   
+  
+  # do it yourself. Try to compute survival and draw a KM curve by age groups
   fitAge <- survfit(Surv(time, status) ~ agegrp, data = lung)
   ggsurvplot(fitAge,
-             conf.int = F,
+             conf.int = T,
              risk.table.col = "strata", # Change risk table color by groups
              ggtheme = theme_bw())
+  # Now, try to "turn off" the C.I
   
     
  ##### R function to compute the Cox model: coxph()
@@ -153,13 +156,42 @@ ggsurvplot(fit,
   test.ph <- cox.zph(res.cox)
   test.ph
 
+  #From the output above, the test is not statistically significant for each of the covariates, and the global test is also not statistically significant. 
+  #Therefore, we can assume the proportional hazards.
+  
+  
 #  Plot the scaled Schoenfeld residuals against the transformed time 
   dev.new()
   plot(test.ph[1], lwd=1.5, col="red")
+  abline(h=0, col="blue")
   plot(test.ph[2], lwd=1.5, col="red")
+  abline(h=0, col="blue")
   plot(test.ph[3], lwd=1.5, col="red")
-
+  abline(h=0, col="blue")
+  # Schoenfeld residuals "can essentially be thought of as the observed minus 
+  #the expected values of the covariates at each failure time" 
+  #The plot of Schoenfeld residuals against time for any covariate should 
+  #not show a pattern of changing residuals for that covariate.
+  
+  #Schoenfeld residuals are the differences between observed
+  #and expected values of a covariate, adjusted for the rest of 
+  #the model. The plot gives The smoothed plot is thus an estimate 
+  #of the time dependence of the coefficient for the covariate
+  #If the Schoenfeld residuals show a pattern over time 
+  #(e.g., if they exhibit a non-linear trend), it suggests that the proportional 
+  #hazards assumption might be violated for that covariate.
+  #if there's a noticeable trend, it indicates that the hazard ratio
+  #for that covariate is changing over time. 
+  #This could mean that the effect of the covariate on survival is not constant over time, 
+  
+  # what to do if assumptions are violated? It depends.
+  # -if for one variable only, one can try to stratify for that variable
+  # -maybe there is a time dependent covariate?
+  # -different model. or even, different methods (splines?)
+  
+  
   ggcoxdiagnostics(res.cox, type = "dfbeta",
                    linear.predictions = FALSE, ggtheme = theme_bw())
+  
   
   
